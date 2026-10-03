@@ -1,4 +1,4 @@
-# CWD_code
+# CWD_codebase
 
 Finite-element code for a spatially explicit S-E-I-R-W reaction-diffusion model
 of chronic wasting disease (CWD) in mule deer on a terrain surface built from
