@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "CWD_code: reaction-diffusion model and optimal culling control for chronic wasting disease in mule deer"
+authors:
+  - family-names: Flanagin
+    given-names: Gabe
+  - family-names: Escoto
+    given-names: Alex
+  - family-names: Chao
+    given-names: Zhen
+license: MIT

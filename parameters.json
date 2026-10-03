@@ -1,0 +1,163 @@
+{
+  "mesh": {
+    "downsample": 3,
+    "smooth": true,
+    "smoothing_sigma": 3.0,
+    "hmax": 200.0
+  },
+  "time": {
+    "final_time_years": 30.0,
+    "time_step_years": 0.05
+  },
+  "reaction": {
+    "exposed_to_shedding_rate": 1.693,
+    "preclinical_to_clinical_rate": 1.27053,
+    "clinical_removal_rate": 2.69053,
+    "direct_transmission_rate_preclinical": 0.099966,
+    "direct_transmission_rate_clinical": 0.099966,
+    "intrinsic_growth_rate": 0.26,
+    "environmental_shedding_rate_preclinical": 0.439798,
+    "environmental_shedding_rate_clinical": 1.759192,
+    "environmental_decay_rate": 0.15,
+    "environmental_transmission_rate": 0.101124
+  },
+  "optimal_control": {
+    "cost_susceptible_deficit": 10.0,
+    "cost_environment": 0.0,
+    "cost_control": 0.5,
+    "cost_control_l1": 0.5,
+    "terminal_cost_scale": 0.0,
+    "terminal_tail_generations": 1,
+    "control_budget": null,
+    "control_budget_penalty": 40.0,
+    "control_budget_outer_iterations": 8,
+    "control_budget_tolerance": 0.001,
+    "control_block_years": 1.0,
+    "control_horizon_years": 20.0,
+    "optimizer": "lbfgs",
+    "lbfgs_memory": 10,
+    "control_minimum": 0.0,
+    "control_maximum": 3.0,
+    "initial_control": 0.0,
+    "max_iterations": 40,
+    "initial_step_size": 1.0,
+    "armijo_sufficient_decrease": 0.0001,
+    "armijo_backtrack_factor": 0.5,
+    "armijo_step_growth": 2.0,
+    "armijo_max_backtracks": 25,
+    "minimum_step_size": 1e-12,
+    "gradient_tolerance": 1e-08,
+    "relative_cost_tolerance": 1e-08
+  },
+  "initial_conditions": {
+    "infected_gaussians": [
+      {
+        "center": [
+          -200,
+          200
+        ],
+        "mean": 2,
+        "standard_deviation": 500.0
+      },
+      {
+        "center": [
+          1000,
+          1000
+        ],
+        "mean": 0.0,
+        "standard_deviation": 500.0
+      }
+    ],
+    "seed_mode": "staged"
+  },
+  "susceptible_spinup": {
+    "enabled": true,
+    "max_duration_years": 60.0,
+    "time_step_years": null,
+    "drift_tolerance": 1e-05
+  },
+  "diffusion_tensor": {
+    "isotropy": 0.001,
+    "kappa": 4000000.0,
+    "slope_penalty": 4.7,
+    "trace_preserving": true,
+    "compartment_scales": {
+      "susceptible": 1.0,
+      "exposed": 1.0,
+      "preclinical": 1.0,
+      "clinical": 0.376471
+    }
+  },
+  "land_cover": {
+    "class_names": {
+      "0": "Unknown or nodata",
+      "11": "Open water",
+      "12": "Perennial ice or snow",
+      "21": "Developed, open space",
+      "22": "Developed, low intensity",
+      "23": "Developed, medium intensity",
+      "24": "Developed, high intensity",
+      "31": "Barren land",
+      "41": "Deciduous forest",
+      "42": "Evergreen forest",
+      "43": "Mixed forest",
+      "52": "Shrub or scrub",
+      "71": "Grassland or herbaceous",
+      "81": "Pasture or hay",
+      "82": "Cultivated crops",
+      "90": "Woody wetlands",
+      "95": "Emergent herbaceous wetlands"
+    },
+    "diffusivity_default": 0.5,
+    "diffusivity": {
+      "0": 0.5,
+      "11": 0.01,
+      "12": 0.3,
+      "21": 0.9,
+      "22": 0.7,
+      "23": 0.4,
+      "24": 0.1,
+      "31": 0.9,
+      "41": 1.0,
+      "42": 0.62,
+      "43": 0.76,
+      "52": 0.81,
+      "71": 0.8,
+      "81": 0.15,
+      "82": 0.57,
+      "90": 0.73,
+      "95": 0.46
+    },
+    "carrying_capacity_base": 3.0,
+    "carrying_capacity_fraction_default": 0.5,
+    "carrying_capacity_fractions": {
+      "0": 0.5,
+      "11": 0.0,
+      "12": 0.0,
+      "21": 0.5,
+      "22": 0.35,
+      "23": 0.15,
+      "24": 0.03,
+      "31": 0.1,
+      "41": 0.75,
+      "42": 0.85,
+      "43": 0.8,
+      "52": 1.0,
+      "71": 0.8,
+      "81": 0.6,
+      "82": 0.35,
+      "90": 0.95,
+      "95": 0.3
+    }
+  },
+  "disease_spinup": {
+    "enabled": true,
+    "mode": "detection",
+    "duration_years": 20.0,
+    "target_prevalence": 0.05,
+    "detection_threshold": 60.8356,
+    "detection_exponent": 1.0,
+    "max_duration_years": 400.0,
+    "time_step_years": null
+  }
+}

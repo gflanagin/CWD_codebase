@@ -1,0 +1,15 @@
+name: cwd-fem
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - fenics-dolfinx=0.11.0
+  - openmpi=5.0.10
+  - python-gmsh=4.15.2
+  - meshio=5.3.5
+  - rasterio>=1.4,<1.5
+  - scipy>=1.16,<1.17
+  - matplotlib>=3.10,<3.11
+  - pip
+  - pip:
+      - mmgpy[pyvista]==0.16.2
