@@ -248,7 +248,7 @@ have the same name in the source as in the paper.
 | `[dL/dy]^T lambda + dt g` | `adjoint_rhs_form` | adjoint load vector |
 | `dt g` | `terminal_rhs_form` | terminal adjoint, at `lambda(T) = 0` |
 | `T_c` | `control_horizon_years` | end of the control; tail steps carry block index `-1` |
-| `dJ_h/dv^n` | `gradient_forms` | reduced gradient |
+| `dJ_h/dv^n` | `gradient_form` | reduced gradient |
 | `S_inf` | `S_infinity` | disease-free reference |
 | `M_L` | `lumped_mass` | lumped mass, inner product |
 | `beta(n), N^(b), dt_b` | `block_of_step`, `block_step_counts`, `block_weights` | block averaging |
