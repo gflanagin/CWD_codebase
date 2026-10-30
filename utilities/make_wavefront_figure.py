@@ -139,7 +139,7 @@ def figure(disk):
             a.set_xlim(0, RIM_KM)
             a.set_ylim(0, 1.05)
             if i == 0:
-                a.set_title(rf"$\delta = {value(d):g}$, year ${yr:g}$")
+                a.set_title(rf"$\delta = {value(d):g}$, $t = {yr:g}$")
             if i == len(R0S) - 1:
                 a.set_xlabel("radius (km)")
             if j == 0:
@@ -168,7 +168,7 @@ def figure(disk):
     handles, labels = ax[0, 2].get_legend_handles_labels()
     handles += [plt.Line2D([], [], color="0.3", ls="-", lw=1.0),
                 plt.Line2D([], [], color="0.3", ls="--", lw=1.0)]
-    labels += ["uncontrolled", "optimal"]
+    labels += ["uncontrolled", "controlled"]
     # the R0 = 5 edges leave the panel before year 20, so its right half is free
     ax[-1, 2].legend(handles, labels, frameon=False, loc="lower right",
                      handlelength=1.8)

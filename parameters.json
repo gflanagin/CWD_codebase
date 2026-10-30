@@ -85,7 +85,7 @@
       "susceptible": 1.0,
       "exposed": 1.0,
       "preclinical": 1.0,
-      "clinical": 0.376471
+      "clinical": 0.7
     }
   },
   "land_cover": {

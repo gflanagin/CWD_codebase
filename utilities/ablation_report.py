@@ -234,6 +234,8 @@ def report(root, region):
         print(f"  land cover {lc:<5} |grad v| y5 ratio {g:.2f}, time-mean RMS "
               f"{rms:.0f}% of the aniso mean, correlation {corr:.3f}")
 
+    # flattened land cover makes S_inf uniform, so its gradient is round-off
+    lcs = [lc for lc in lcs if lc == "lc"]
     sa = {lc: mesh.grad_norm(frame(dirs[f"aniso_{lc}"][0], "S_infinity", 0))
           for lc in lcs}
     si = {lc: mesh.grad_norm(frame(dirs[f"iso_{lc}"][0], "S_infinity", 0))

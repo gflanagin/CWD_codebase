@@ -13,7 +13,7 @@ the other.
 | `S` | susceptible | no | no | n/a | 1 |
 | `E` | exposed, latent | no | no | no | 1 |
 | `I` | pre-clinical | `rho_I` | `beta_1` | no | 1 |
-| `R` | clinical | `rho_R = 4 rho_I` | `beta_1` | yes | 0.376 |
+| `R` | clinical | `rho_R = 4 rho_I` | `beta_1` | yes | 0.7 |
 | `W` | environmental prion load | | | | does not diffuse |
 
 The model has no background mortality: `sigma_1`, `sigma_2` and `alpha` are the

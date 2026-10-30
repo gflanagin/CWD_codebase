@@ -210,9 +210,6 @@ def plot(runs, figure, years, bin_km, labels=None):
                 p = tr.at(key, t)
                 ax.plot(tr.centres, p / np.nanmax(p), color=colours[key],
                         lw=1.2, label=key)
-            clinical = tr.at("R", t) * tr.at("S", t)
-            ax.plot(tr.centres, clinical / np.nanmax(clinical), color="0.2",
-                    lw=0.8, ls=":", label=r"$RS$")
             r50 = tr.front(t)
             if np.isfinite(r50):
                 ax.axvline(r50, color="0.6", lw=0.7)
@@ -225,7 +222,7 @@ def plot(runs, figure, years, bin_km, labels=None):
             else:
                 twin.set_ylabel(r"$v$ (yr$^{-1}$)")
             if i == 0:
-                ax.set_title(f"year {t:g}")
+                ax.set_title(rf"$t = {t:g}$")
             if i == len(runs) - 1:
                 ax.set_xlabel("radius (km)")
             ax.set_xlim(0.0, tr.r_max)

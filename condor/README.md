@@ -20,7 +20,14 @@ parameters.json` carries them into every point file.
 | time step | 0.05 yr | `time.time_step_years` (passed as `--time-step-years 0.05`) |
 | `c1`, `c2`, `c3`, `c4` | 10, 0, 0.5, 0.5 | `optimal_control.cost_*` |
 | `v_max` | 3 /yr | `optimal_control.control_maximum` |
+| clinical mobility `D_R^scale` | 0.7 | `diffusion_tensor.compartment_scales.clinical` (passed as `--clinical-mobility 0.7`) |
 | detection threshold `R_det` | 60.8356 clinical deer-years | `disease_spinup.detection_threshold` |
+
+`--overlay` does not replace `diffusion_tensor`, which holds mesh-derived
+settings such as the isotropy of an ablation arm, and the landscape bundles in
+the data archive were generated with an earlier clinical mobility. Every
+`sweep_setup.py` call below therefore passes `--clinical-mobility 0.7`, which
+sets that one key.
 
 `R_det` was measured once with `utilities/anchor_detection_threshold.py`
 (`prepare` writes a probe parameter file, `read --apply` writes the
@@ -81,7 +88,7 @@ node's scratch. Summarize a finished sweep with
 ## 1. Flat-disk grid (12 points)
 
 A flat disk of radius 40 km with uniform land cover (`c = p = 1`), so `K = K0`
-and `D = kappa I`, with the index case at the centre. `delta` in {0.125, 0.25,
+and `D = kappa I`, with the disease seeded at the centre. `delta` in {0.125, 0.25,
 0.5, 1} by `R0` in {2, 3.5, 5}.
 
 ```bash
@@ -91,7 +98,7 @@ $PY utilities/flat_transect.py --out $CWD/flat_disk --radius-km 40 \
 $PY utilities/sweep_setup.py --base $CWD/flat_disk/bundle/effective_parameters.json \
     --overlay parameters.json --out sweep_params_flat \
     --delta 0.125 0.25 0.5 1.0 --R0 2 3.5 5 --c4 0.5 --c3 0.5 --v-max 3 \
-    --time-step-years 0.05
+    --time-step-years 0.05 --clinical-mobility 0.7
 ```
 
 The DAG needs `susceptible_equilibrium.npy` in the bundle, which the first
@@ -115,12 +122,12 @@ condor_submit_dag $CWD/repo/condor/flat_grid/sweep.dag
 The cell `delta = 0.25`, `R0 = 3.5` under two further objectives that move
 weight from the susceptible deficit onto the reservoir, with `c2` scaled so the
 uncontrolled `J` is unchanged. In the uncontrolled run,
-`int(S_inf - S) / int(W) = 2.428`, so `c2 = 2.428 (10 - c1)`:
+`int(S_inf - S) / int(W) = 2.441`, so `c2 = 2.441 (10 - c1)`:
 
 | `c1` | `c2` | `W` share of the uncontrolled `J` |
 | --- | --- | --- |
-| 5 | 12.14 | 50% |
-| 0 | 24.28 | 100% |
+| 5 | 12.21 | 50% |
+| 0 | 24.41 | 100% |
 
 `sweep_setup.py` has no `c1`/`c2` axis, so the two point files are patched from
 the generated one. The spin-up and baseline are copied from the flat grid.
@@ -130,9 +137,9 @@ RUNS=$CWD/runs; P=sweep_params_flat_c2; O=$RUNS/flat_c2; g=delta_0p25_R0_3p5
 mkdir -p $P
 $PY utilities/sweep_setup.py --base $CWD/flat_disk/bundle/effective_parameters.json \
     --overlay parameters.json --out _tmp_c2 --delta 0.25 --R0 3.5 --c4 0.5 \
-    --c3 0.5 --v-max 3 --time-step-years 0.05
+    --c3 0.5 --v-max 3 --time-step-years 0.05 --clinical-mobility 0.7
 n=$(cat _tmp_c2/manifest.txt)
-for arm in "5 12.14 c1_5_c2_12p14" "0 24.28 c1_0_c2_24p28"; do set -- $arm
+for arm in "5 12.21 c1_5_c2_12p21" "0 24.41 c1_0_c2_24p41"; do set -- $arm
   $PY - _tmp_c2/$n.json $P/${n}__$3.json $1 $2 <<'EOF'
 import json, sys
 src, dst, c1, c2 = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4])
@@ -184,7 +191,7 @@ for region in upper_arkansas estes_park carbondale; do
     $PY utilities/sweep_setup.py --base $AB/$A/effective_parameters.json \
         --overlay parameters.json --out sweep_params_ablation/$A \
         --delta 0.25 --R0 ${R0T[$region]} --c4 0.5 --c3 0.5 --v-max 3 \
-        --time-step-years 0.05
+        --time-step-years 0.05 --clinical-mobility 0.7
     $PY utilities/make_condor_sweep.py --mesh $AB/$A \
         --params $CWD/repo/sweep_params_ablation/$A --outroot $RUNS/ablation/$A \
         --submit-dir $CWD/repo/condor/ablation/$A --python $PY \
@@ -195,19 +202,52 @@ for region in upper_arkansas estes_park carbondale; do
 done
 ```
 
-## Figures and reported numbers
+## 4. Deposition and route ratios on the flat disk
 
-With the outputs under `cluster_runs/` and, for the ablation region panels, the
-three bundles under `meshes100/<region>_mesh/` with their `bundle.h5` written
-by `utilities/export_mesh_to_xdmf.py`:
+The cell `delta = 0.25`, `R0 = 3.5` at the deposition ratio
+`rho_R/rho_I = 5` and at the route ratio `m = R0_env/R0_dir` in {2.6, 18.2},
+one ratio at a time, plus `rho_R/rho_I = 4`, which must reproduce the flat
+grid's point. Both ratios hold `R0` and the host endemic state fixed but change
+the dynamics, so each arm is its own spin-up group. The points are generated
+from the flat grid's point file, so everything except the ratio matches it.
 
 ```bash
+RUNS=$CWD/runs; P=sweep_params_flat_ratios; O=$RUNS/flat_ratios
+REF=sweep_params_flat/delta_0p25_R0_3p5__c4_0p5.json
+mkdir -p $P
+for arm in "shedding-ratio 4" "shedding-ratio 5" "route-ratio 2.6" "route-ratio 18.2"; do
+  set -- $arm
+  $PY utilities/sweep_setup.py --base $REF --out _tmp_ratio_$2 \
+      --delta 0.25 --R0 3.5 --c4 0.5 --$1 $2
+  cp _tmp_ratio_$2/*.json $P/ && cat _tmp_ratio_$2/manifest.txt >> $P/manifest.txt
+done
+rm -rf _tmp_ratio_*
+
+$PY utilities/make_condor_sweep.py --mesh $CWD/flat_disk/bundle \
+    --params $CWD/repo/$P --outroot $O --submit-dir $CWD/repo/condor/flat_ratios \
+    --python $PY --request-memory 4G \
+    --extra-args "--checkpoint-every 5 --output-every 20 --no-spinup-series"
+condor_submit_dag $CWD/repo/condor/flat_ratios/sweep.dag
+```
+
+## Figures and reported numbers
+
+The data archive unpacks into `cluster_runs/flat_grid`, `cluster_runs/flat_c2`,
+`cluster_runs/flat_ratios` and `cluster_runs/ablation`, and the landscape
+bundles, each with the `bundle.h5` that `utilities/export_mesh_to_xdmf.py`
+writes, into `meshes100/<region>_mesh/`. From the repository root:
+
+```bash
+python utilities/make_cull_reach_figure.py           # closed-form reach of the cull
 python utilities/make_wavefront_figure.py            # flat grid wavefronts
 python utilities/make_wavefront_figure.py --table    # front positions quoted in the text
 python utilities/make_transect_figure.py             # objective comparison
+python utilities/sweep_report.py cluster_runs/flat_grid
+python utilities/sweep_report.py cluster_runs/flat_ratios
 python utilities/ablation_report.py cluster_runs/ablation upper_arkansas --focus 39 -44
 python utilities/ablation_report.py cluster_runs/ablation estes_park carbondale
-python utilities/make_ablation_figure.py --run ablation upper_arkansas estes_park carbondale
+python utilities/make_ablation_figure.py upper_arkansas estes_park carbondale
+python utilities/make_ablation_figure.py region upper_arkansas estes_park carbondale
 ```
 
 `utilities/control_area_stats.py` computes treated and never-treated areas from

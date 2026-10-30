@@ -140,6 +140,14 @@ def main():
                              "file, keeping rho_I/sigma_2 + rho_R/alpha = 1. "
                              "Tagged into the spin-up group of every point "
                              "name.")
+    parser.add_argument("--route-ratio", type=float, default=None,
+                        help="Set the route ratio m = R0_env/R0_dir in every "
+                             "file, keeping the base R0. Tagged into the "
+                             "spin-up group of every point name.")
+    parser.add_argument("--clinical-mobility", type=float, default=None,
+                        help="Set diffusion_tensor.compartment_scales.clinical "
+                             "(D_R^scale) in every file, and nothing else in "
+                             "diffusion_tensor.")
     parser.add_argument("--time-step-years", type=float, default=None,
                         help="Override time.time_step_years in every file.")
     parser.add_argument("--final-time-years", type=float, default=None,
@@ -173,7 +181,23 @@ def main():
             base[section] = json.loads(json.dumps(new_section))
         print(f"  {changed} field(s) taken from the overlay\n")
 
-    spinup = base.get("disease_spinup", {})
+        # Tensor keys missing from an older bundle are filled in from the
+        # overlay; keys the bundle has are never replaced.
+        tensor = base["diffusion_tensor"]
+        for key in ("slope_penalty", "trace_preserving"):
+            if key not in tensor and key in overlay.get("diffusion_tensor", {}):
+                tensor[key] = overlay["diffusion_tensor"][key]
+                print(f"  diffusion_tensor.{key}: missing -> {tensor[key]}")
+
+    if args.clinical_mobility is not None:
+        if args.clinical_mobility <= 0.0:
+            raise SystemExit("--clinical-mobility must be positive")
+        scales = base["diffusion_tensor"]["compartment_scales"]
+        print(f"clinical mobility: {scales.get('clinical')} -> "
+              f"{args.clinical_mobility:g}\n")
+        scales["clinical"] = args.clinical_mobility
+
+    spinup =base.get("disease_spinup", {})
     mode = spinup.get("mode")
     if mode == "detection" and "detection_threshold" not in spinup:
         raise SystemExit(
@@ -199,6 +223,21 @@ def main():
             args.shedding_ratio * rho_I, 6)
         print(f"shedding ratio  : rho_R/rho_I = {args.shedding_ratio:g} "
               f"(rho_I = {rho_I:.6f}, rho_R = {args.shedding_ratio * rho_I:.6f})")
+    if args.route_ratio is not None:
+        if args.route_ratio <= 0.0:
+            raise SystemExit("--route-ratio must be positive")
+        rx = base["reaction"]
+        R0_dir, R0_env, _ = r0_parts(rx, K0)
+        total = R0_dir + R0_env
+        dir_scale = total / (1.0 + args.route_ratio) / R0_dir
+        env_scale = total * args.route_ratio / (1.0 + args.route_ratio) / R0_env
+        for key in ("direct_transmission_rate_preclinical",
+                    "direct_transmission_rate_clinical"):
+            rx[key] = round(dir_scale * float(rx[key]), 8)
+        rx["environmental_transmission_rate"] = round(
+            env_scale * float(rx["environmental_transmission_rate"]), 8)
+        print(f"route ratio     : R0_env/R0_dir = {args.route_ratio:g} "
+              f"(was {R0_env / R0_dir:.4f})")
     R0_dir, R0_env_target, deposit = r0_parts(base["reaction"], K0)
 
     if "seed_mode" not in base.get("initial_conditions", {}):
@@ -250,6 +289,8 @@ def main():
                 name += f"_R0_{tag(R0)}"
             if args.shedding_ratio is not None:
                 name += f"_rho_{tag(args.shedding_ratio)}"
+            if args.route_ratio is not None:
+                name += f"_m_{tag(args.route_ratio)}"
             if args.c4 is not None:
                 name += f"__c4_{tag(c4)}"
             if budget is not None:

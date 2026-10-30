@@ -16,8 +16,8 @@ from flat_transect import plot  # noqa: E402
 CELL = "delta_0p25_R0_3p5__c4_0p5"
 RUNS = [
     (f"cluster_runs/flat_grid/{CELL}", r"$c_1 = 10$, $c_2 = 0$"),
-    (f"cluster_runs/flat_c2/{CELL}__c1_5_c2_12p14", r"$c_1 = 5$, $c_2 = 12.14$"),
-    (f"cluster_runs/flat_c2/{CELL}__c1_0_c2_24p28", r"$c_1 = 0$, $c_2 = 24.28$"),
+    (f"cluster_runs/flat_c2/{CELL}__c1_5_c2_12p21", r"$c_1 = 5$, $c_2 = 12.21$"),
+    (f"cluster_runs/flat_c2/{CELL}__c1_0_c2_24p41", r"$c_1 = 0$, $c_2 = 24.41$"),
 ]
 YEARS = [0, 5, 10, 15, 19]
 OUT = Path("figures/flat_c2/transect_c1_c2.png")

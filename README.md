@@ -7,12 +7,12 @@ cull acting on the clinical class.
 
 It accompanies
 
-> G. Flanagin, A. Escoto, Z. Chao. *A Reaction-Diffusion Model for Chronic
-> Wasting Disease Spread in Deer on a Topographically Realistic Landscape, with
-> Optimal Culling Control.* Submitted to the Bulletin of Mathematical Biology.
+> G. Flanagin, A. Escoto, Z. Chao. *A Spatial Model of Chronic Wasting Disease
+> and the Optimal Placement of a Sight-Based Cull.* Submitted to the Bulletin of
+> Mathematical Biology.
 
-The mesh bundles and simulation output behind the paper are archived
-separately at [Zenodo DOI to be added].
+The mesh bundles and simulation output behind the paper are archived, with a
+snapshot of this code, at [Zenodo DOI to be added].
 
 ## Installation
 
